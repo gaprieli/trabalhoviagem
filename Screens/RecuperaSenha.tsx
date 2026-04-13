@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, Button, Alert } from 'react-native';
+import {
+  StyleSheet, Text, View, TextInput,
+  Alert, TouchableOpacity
+} from 'react-native';
 
-import { auth } from '../firebase'; 
-
-import { sendPasswordResetEmail } from 'firebase/auth'; 
+import { auth } from '../firebase';
+import { sendPasswordResetEmail } from 'firebase/auth';
 
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../App';
 
-// Tipagem da navegação
 type RecoverScreenProp = NativeStackNavigationProp<RootStackParamList, 'RecuperaSenha'>;
 
 export default function RecoverPassword() {
@@ -17,14 +18,14 @@ export default function RecoverPassword() {
   const navigation = useNavigation<RecoverScreenProp>();
 
   const recuperarSenha = () => {
-    if (email === '') {
-      Alert.alert("Atenção", "Por favor, digite seu e-mail.");
+    if (!email) {
+      Alert.alert("Atenção", "Digite seu e-mail.");
       return;
     }
 
     sendPasswordResetEmail(auth, email)
       .then(() => {
-        Alert.alert("Sucesso!", "Link enviado! Verifique sua caixa de entrada e o Spam.");
+        Alert.alert("Sucesso!", "Link enviado! Verifique seu e-mail.");
         navigation.goBack();
       })
       .catch((erro) => {
@@ -34,30 +35,102 @@ export default function RecoverPassword() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Recuperar Senha</Text>
-      
-      <TextInput 
-        style={styles.input} 
-        placeholder='E-mail cadastrado' 
-        autoCapitalize="none" 
-        keyboardType="email-address" 
-        onChangeText={setEmail} 
-        value={email} 
-      />
-      
-      
-      <Button title='Enviar Link de Recuperação' onPress={recuperarSenha} />
-      
-      
-      <View style={{ marginTop: 20 }}>
-        <Button title='Voltar' onPress={() => navigation.goBack()} color="#666" />
+
+      <View style={styles.card}>
+        <Text style={styles.title}>🔐 Recuperar Senha</Text>
+        <Text style={styles.subtitle}>
+          Digite seu e-mail para receber o link
+        </Text>
+
+        <TextInput
+          style={styles.input}
+          placeholder='E-mail cadastrado'
+          autoCapitalize="none"
+          keyboardType="email-address"
+          onChangeText={setEmail}
+          value={email}
+        />
+
+        {/* BOTÃO ENVIAR */}
+        <TouchableOpacity style={styles.primaryBtn} onPress={recuperarSenha}>
+          <Text style={styles.primaryBtnText}>Enviar Link</Text>
+        </TouchableOpacity>
+
+        {/* VOLTAR */}
+        <TouchableOpacity
+          style={styles.secondaryBtn}
+          onPress={() => navigation.goBack()}
+        >
+          <Text style={styles.btnText}>Voltar</Text>
+        </TouchableOpacity>
+
       </View>
+
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, justifyContent: 'center' },
-  title: { fontSize: 24, marginBottom: 20, textAlign: 'center' },
-  input: { borderWidth: 1, padding: 10, marginBottom: 15, borderRadius: 5 }
+  container: {
+    flex: 1,
+    backgroundColor: '#4CAF50',
+    justifyContent: 'center',
+    padding: 20
+  },
+
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 15,
+    padding: 25,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    elevation: 5
+  },
+
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#333',
+    textAlign: 'center'
+  },
+
+  subtitle: {
+    textAlign: 'center',
+    color: '#777',
+    marginBottom: 20
+  },
+
+  input: {
+    backgroundColor: '#f2f4f8',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 15
+  },
+
+  primaryBtn: {
+    backgroundColor: '#4CAF50',
+    padding: 14,
+    borderRadius: 8,
+    alignItems: 'center'
+  },
+
+  primaryBtnText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16
+  },
+
+  secondaryBtn: {
+    backgroundColor: '#555',
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 10
+  },
+
+  btnText: {
+    color: '#fff',
+    fontWeight: 'bold'
+  }
 });
